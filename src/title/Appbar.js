@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -53,6 +53,18 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function ButtonAppBar() {
+  const [selectedIcon, setSelectedIcon] = useState('home'); // 초기 아이콘은 홈 아이콘
+
+  const handleIconClick = (icon) => {
+    setSelectedIcon(icon); // 클릭한 아이콘을 상태로 설정
+  };
+
+  const getIconStyles = (icon) => {
+    return selectedIcon === icon
+      ? { color: 'black', stroke: 'black', strokeWidth: 1 }
+      : { color: 'white', stroke: 'black', strokeWidth: 1 };
+  };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" color="inherit" sx={{ backgroundColor: 'white', color: 'black' }}>
@@ -71,17 +83,33 @@ export default function ButtonAppBar() {
               />
             </Search>
           </Box>
-          <IconButton size="large" aria-label="home" >
-            <HomeIcon sx={{ color: 'black', stroke: 'black', strokeWidth: 1 }} />
+          <IconButton
+            size="large"
+            aria-label="home"
+            onClick={() => handleIconClick('home')}
+          >
+            <HomeIcon sx={getIconStyles('home')} />
           </IconButton>
-          <IconButton size="large" aria-label="send">
-            <SendIcon sx={{ color: 'white', stroke: 'black', strokeWidth: 1 }} />
+          <IconButton
+            size="large"
+            aria-label="send"
+            onClick={() => handleIconClick('send')}
+          >
+            <SendIcon sx={getIconStyles('send')} />
           </IconButton>
-          <IconButton size="large" aria-label="explore">
-            <ExploreIcon sx={{ color: 'white', stroke: 'black', strokeWidth: 1 }} />
+          <IconButton
+            size="large"
+            aria-label="explore"
+            onClick={() => handleIconClick('explore')}
+          >
+            <ExploreIcon sx={getIconStyles('explore')} />
           </IconButton>
-          <IconButton size="large" aria-label="favorite">
-            <FavoriteIcon sx={{ color: 'white', stroke: 'black', strokeWidth: 1 }} />
+          <IconButton
+            size="large"
+            aria-label="favorite"
+            onClick={() => handleIconClick('favorite')}
+          >
+            <FavoriteIcon sx={getIconStyles('favorite')} />
           </IconButton>
         </Toolbar>
       </AppBar>
