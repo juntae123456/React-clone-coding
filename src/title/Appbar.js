@@ -11,14 +11,17 @@ import HomeIcon from '@mui/icons-material/Home';
 import SendIcon from '@mui/icons-material/Send';
 import ExploreIcon from '@mui/icons-material/Explore';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import AddIcon from '@mui/icons-material/Add';
+import Contents from './contents';
+import AddFeed from './addfeed'; // 추가한 파일을 임포트
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: 'white', // 백그라운드를 하얀색으로 설정
-  border: `1px solid ${theme.palette.common.black}`, // 검정색 선 추가
+  backgroundColor: 'white',
+  border: `1px solid ${theme.palette.common.black}`,
   '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.9), // 호버 시 배경색 약간 변경
+    backgroundColor: alpha(theme.palette.common.white, 0.9),
   },
   marginRight: theme.spacing(2),
   marginLeft: 0,
@@ -53,10 +56,11 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function ButtonAppBar() {
-  const [selectedIcon, setSelectedIcon] = useState('home'); // 초기 아이콘은 홈 아이콘
+  const [selectedIcon, setSelectedIcon] = useState('home');
+  const [openAddFeed, setOpenAddFeed] = useState(false); // AddFeed 다이얼로그 상태
 
   const handleIconClick = (icon) => {
-    setSelectedIcon(icon); // 클릭한 아이콘을 상태로 설정
+    setSelectedIcon(icon);
   };
 
   const getIconStyles = (icon) => {
@@ -65,54 +69,50 @@ export default function ButtonAppBar() {
       : { color: 'white', stroke: 'black', strokeWidth: 1 };
   };
 
+  const handleAddFeedOpen = () => {
+    setOpenAddFeed(true); // 다이얼로그 열기
+  };
+
+  const handleAddFeedClose = () => {
+    setOpenAddFeed(false); // 다이얼로그 닫기
+  };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" color="inherit" sx={{ backgroundColor: 'white', color: 'black' }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <Typography variant="h6" component="div">
-            𝒜𝓃𝒾𝓂𝒶𝒾𝓁𝓈
+          <Typography variant="h4" component="div">
+            𝓐𝓷𝓲𝓶𝓪𝓵𝓼
           </Typography>
           <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
             <Search>
               <SearchIconWrapper>
                 <SearchIcon />
               </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Search…"
-                inputProps={{ 'aria-label': 'search' }}
-              />
+              <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search' }} />
             </Search>
           </Box>
-          <IconButton
-            size="large"
-            aria-label="home"
-            onClick={() => handleIconClick('home')}
-          >
+          <IconButton size="large" aria-label="home" onClick={() => handleIconClick('home')}>
             <HomeIcon sx={getIconStyles('home')} />
           </IconButton>
-          <IconButton
-            size="large"
-            aria-label="send"
-            onClick={() => handleIconClick('send')}
-          >
+          <IconButton size="large" aria-label="send" onClick={() => handleIconClick('send')}>
             <SendIcon sx={getIconStyles('send')} />
           </IconButton>
-          <IconButton
-            size="large"
-            aria-label="explore"
-            onClick={() => handleIconClick('explore')}
-          >
+          <IconButton size="large" aria-label="explore" onClick={() => handleIconClick('explore')}>
             <ExploreIcon sx={getIconStyles('explore')} />
           </IconButton>
-          <IconButton
-            size="large"
-            aria-label="favorite"
-            onClick={() => handleIconClick('favorite')}
-          >
+          <IconButton size="large" aria-label="favorite" onClick={() => handleIconClick('favorite')}>
             <FavoriteIcon sx={getIconStyles('favorite')} />
+          </IconButton>
+          <IconButton size="large" aria-label="add" onClick={handleAddFeedOpen}>
+            <AddIcon sx={{ color: 'black' }} />
           </IconButton>
         </Toolbar>
       </AppBar>
+      <Contents />
+
+      {/* AddFeed 다이얼로그 */}
+      <AddFeed open={openAddFeed} handleClose={handleAddFeedClose} />
     </Box>
   );
 }
