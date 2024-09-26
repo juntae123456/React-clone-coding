@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Card, Avatar, Typography, Button } from '@mui/material';
 import PostCard from './PostCard'; // PostCard 컴포넌트 가져오기
-
+import AddFeed from './addfeed'; // AddFeed 컴포넌트 가져오기
 // StoryList 컴포넌트
 function StoryList() {
   const stories = ['s_won', 'vviva', 'delicion', 'korean', 'apt', 'sangsi', '__two'];
@@ -46,7 +46,7 @@ function SuggestedUser({ userName, description }) {
 }
 
 // Main Contents 컴포넌트
-export default function Contents() {
+export default function Contents({ refresh }) {
   const [feeds, setFeeds] = useState([]); // 피드 데이터를 저장할 상태
   const [loggedInUserName, setLoggedInUserName] = useState(''); // 로그인한 사용자 이름 상태
 
@@ -75,29 +75,35 @@ export default function Contents() {
     }
   }, []);
 
+  // refresh 상태가 변경될 때 피드를 새로 불러옴
+  useEffect(() => {
+    fetchFeeds(); // 피드 추가 후 데이터를 다시 불러옴
+  }, [refresh]);
+
   return (
     <Box p={2} maxWidth={1200} margin="0 auto">
       {/* 레이아웃: 왼쪽 컬럼과 오른쪽 컬럼 */}
       <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={2}>
-
-        {/* 왼쪽 컬럼: 스토리 및 피드 */}
+        {/* 왼쪽 컬럼: 피드 */}
         <Box flex={2}>
-          <Box mb={2}>
-            <StoryList /> {/* 스토리 카드 렌더링 */}
+          <Box flex={2}>
+            <Box mb={2}>
+              <StoryList /> {/* 스토리 카드 렌더링 */}
+            </Box>
+            {/* 가져온 피드 데이터를 렌더링 */}
+            {feeds.map((feed) => (
+              <PostCard
+                key={feed.id}
+                userName={feed.userName} // Feed를 저장한 사용자 이름
+                fileBlob={feed.fileBlob} // Blob으로 변환된 이미지 파일
+                likesCount={feed.feedgood} // 좋아요 수
+                feedword={feed.feedword} // 피드 내용
+              />
+            ))}
           </Box>
-          {/* 가져온 피드 데이터를 렌더링 */}
-          {feeds.map((feed) => (
-            <PostCard
-              key={feed.id}
-              userName={feed.userName} // Feed를 저장한 사용자 이름
-              fileBlob={feed.fileBlob} // Blob으로 변환된 이미지 파일
-              likesCount={feed.feedgood} // 좋아요 수
-              feedword={feed.feedword} // 피드 내용
-            />
-          ))}
         </Box>
 
-        {/* 오른쪽 컬럼: 프로필 및 추천 사용자 */}
+        {/* 오른쪽 컬럼: 프로필 */}
         <Box flex={1}>
           <Card style={{ padding: '16px' }}>
             <Box display="flex" alignItems="center">

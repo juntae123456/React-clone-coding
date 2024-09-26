@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -6,14 +6,15 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
-import { IconButton } from '@mui/material';
+import { IconButton, Avatar } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import SendIcon from '@mui/icons-material/Send';
 import ExploreIcon from '@mui/icons-material/Explore';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import AddIcon from '@mui/icons-material/Add';
-import Contents from './contents';
-import AddFeed from './addfeed'; // 추가한 파일을 임포트
+import AddFeed from './addfeed'; // AddFeed 컴포넌트
+import Contents from './contents'; // Contents 컴포넌트
+import AddProfile from './addprofile'; // AddProfile 컴포넌트 추가
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -57,7 +58,11 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 export default function ButtonAppBar() {
   const [selectedIcon, setSelectedIcon] = useState('home');
-  const [openAddFeed, setOpenAddFeed] = useState(false); // AddFeed 다이얼로그 상태
+  const [openAddFeed, setOpenAddFeed] = useState(false);
+  const [openProfileDialog, setOpenProfileDialog] = useState(false);
+  const [imageSrc, setImageSrc] = useState(null); // Base64 이미지 URL 상태
+  const [refresh, setRefresh] = useState(false); // 피드 업데이트 트리거 상태
+  const userId = Number(localStorage.getItem('userId')); // 로컬 스토리지에서 사용자 ID 가져오기
 
   const handleIconClick = (icon) => {
     setSelectedIcon(icon);
@@ -69,12 +74,52 @@ export default function ButtonAppBar() {
       : { color: 'white', stroke: 'black', strokeWidth: 1 };
   };
 
-  const handleAddFeedOpen = () => {
-    setOpenAddFeed(true); // 다이얼로그 열기
+ // 프로필 사진 가져오기
+const fetchProfileImage = () => {
+  fetch(`http://localhost:3001/getprofile/${userId}`)
+    .then((response) => {
+      console.log('프로필 API 응답 상태:', response.status); // 응답 상태 확인
+      if (!response.ok) {
+        throw new Error('프로필 사진을 가져오는 중 오류 발생')
+      }
+      return response.blob(); // Blob 형태로 데이터를 받음
+    })
+    .then((blob) => {
+      console.log('받은 blob 크기:', blob.size); // 받은 blob의 크기 확인
+      if (blob.size > 0) {
+        const imageUrl = URL.createObjectURL(blob); // Blob을 URL로 변환
+        setImageSrc(imageUrl); // 상태에 이미지 URL을 저장
+      } else {
+        setImageSrc('/path/to/default/profile/image.png'); // 이미지가 없을 때 기본 이미지 설정
+      }
+    })
+    .catch((error) => {
+      console.error('프로필 사진을 가져오는 중 오류 발생(프론트):', error);
+      setImageSrc('/path/to/default/profile/image.png'); // 오류 발생 시 기본 이미지 설정
+    });
+};
+
+
+
+  // 페이지 로드 시 프로필 이미지 불러오기
+  useEffect(() => {
+    fetchProfileImage(); // 컴포넌트 마운트 시 프로필 사진 불러오기
+  }, [userId]);
+
+  // 피드 추가가 완료되면 Contents 컴포넌트 업데이트
+  const refreshContents = () => {
+    setRefresh(!refresh); // refresh 상태 변경을 통해 Contents 컴포넌트 새로고침 트리거
   };
 
-  const handleAddFeedClose = () => {
-    setOpenAddFeed(false); // 다이얼로그 닫기
+  const handleAddFeedOpen = () => setOpenAddFeed(true);
+  const handleAddFeedClose = () => setOpenAddFeed(false);
+
+  const handleProfileDialogOpen = () => {
+    setOpenProfileDialog(true);
+  };
+  const handleProfileDialogClose = () => {
+    setOpenProfileDialog(false);
+    fetchProfileImage(); // 프로필 사진 업데이트 후 갱신
   };
 
   return (
@@ -107,12 +152,18 @@ export default function ButtonAppBar() {
           <IconButton size="large" aria-label="add" onClick={handleAddFeedOpen}>
             <AddIcon sx={{ color: 'black' }} />
           </IconButton>
+          <IconButton size="large" aria-label="profile" onClick={handleProfileDialogOpen}>
+            <Avatar src={imageSrc} sx={{ width: 35, height: 35 }} /> {/* 프로필 사진 미리보기 */}
+          </IconButton>
         </Toolbar>
       </AppBar>
-      <Contents />
-
+      {/* Contents 컴포넌트에 refresh 상태를 전달 */}
+      <Contents refresh={refresh} />
       {/* AddFeed 다이얼로그 */}
-      <AddFeed open={openAddFeed} handleClose={handleAddFeedClose} />
+      <AddFeed open={openAddFeed} handleClose={handleAddFeedClose} fetchFeeds={refreshContents} />
+
+      {/* AddProfile 다이얼로그 */}
+      <AddProfile open={openProfileDialog} handleClose={handleProfileDialogClose} />
     </Box>
   );
 }

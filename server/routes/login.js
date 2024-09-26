@@ -17,10 +17,11 @@ router.post('/', (req, res) => {
 
     // 비밀번호가 일치하는지 확인
     if (password === user.password) {
-      // 로그인 성공 시 사용자 이름과 함께 응답 반환
+      // 로그인 성공 시 사용자 ID와 이름 함께 반환
       return res.status(200).json({
         message: '로그인 성공',
-        name: user.name, // 사용자 이름 반환
+        id: user.id,      // 사용자 ID 반환
+        name: user.name,  // 사용자 이름 반환
       });
     } else {
       return res.status(400).send('비밀번호가 일치하지 않습니다.');

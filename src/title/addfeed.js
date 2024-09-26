@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
 
-export default function AddFeed({ open, handleClose }) {
+export default function AddFeed({ open, handleClose, fetchFeeds }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [feedword, setFeedword] = useState('');
   const userId = localStorage.getItem('userId'); // localStorage에서 userId 가져옴
@@ -29,6 +29,11 @@ export default function AddFeed({ open, handleClose }) {
         .then((response) => response.json())
         .then((data) => {
           console.log('피드 업로드 성공:', data);
+
+          // 피드를 다시 불러옴
+          fetchFeeds(); // 부모 컴포넌트에서 전달된 fetchFeeds 함수 호출
+
+          // 업로드 후 다이얼로그 닫기
           handleClose();
         })
         .catch((error) => {
@@ -41,7 +46,14 @@ export default function AddFeed({ open, handleClose }) {
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>피드 추가</DialogTitle>
       <DialogContent>
-        <TextField fullWidth label="피드 설명" variant="outlined" margin="normal" value={feedword} onChange={(e) => setFeedword(e.target.value)} />
+        <TextField
+          fullWidth
+          label="피드 설명"
+          variant="outlined"
+          margin="normal"
+          value={feedword}
+          onChange={(e) => setFeedword(e.target.value)}
+        />
         <input type="file" accept="image/*" onChange={handleFileChange} />
       </DialogContent>
       <DialogActions>

@@ -6,12 +6,18 @@ const loginRoute = require('./routes/login'); // 로그인 라우트 추가
 const searchRoute = require('./routes/search'); //검색 라우트 추가
 const addfeedRouter = require('./routes/addfeed'); // addfeed 라우트 추가
 const getFeedRouter = require('./routes/getfeed'); // 피드 데이터 가져오는 API 추가
+const addprofileRouter = require('./routes/addprofile');
+const getprofilesRouter = require('./routes/getprofile');
 
 const app = express();
 const port = 3001;
 
 app.use(cors()); // CORS 설정
 app.use(bodyParser.json()); // JSON 파싱
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(express.json()); // JSON 파싱
+app.use(express.urlencoded({ extended: true })); // URL 인코딩된 데이터 파싱
 
 // 라우트 등록
 app.use('/signup', signupRoute); // 회원가입 라우트 추가
@@ -25,6 +31,11 @@ app.use('/addfeed', addfeedRouter);
 
 app.use('/getfeed', getFeedRouter);// 피드 데이터를 가져오는 라우트 추가
 
+app.use('/addprofile', addprofileRouter);
+
+app.use('/getprofile', getprofilesRouter);
+
+
 app.listen(port, () => {
-  console.log(`서버가 http://localhost:${port}에서 실행 중입니다.`);
+  console.log('서버가 http://localhost:${port}에서 실행 중입니다.');
 });

@@ -8,34 +8,37 @@ export default function Login({ onLogin }) {
   const [error, setError] = useState('');
   const navigate = useNavigate(); // 페이지 이동을 위한 useNavigate 사용
 
-  const handleLoginClick = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
-      });
+const handleLoginClick = async () => {
+  try {
+    const response = await fetch('http://localhost:3001/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username,
+        password,
+      }),
+    });
 
-      if (response.ok) {
-        const result = await response.json();
-        // 로그인 성공 시 사용자 이름을 로컬 스토리지에 저장
-        localStorage.setItem('name', result.name); // 서버에서 받은 사용자 이름 저장
-        onLogin(); // 부모 컴포넌트의 handleLogin 호출
-        navigate('/appbar'); // 로그인 성공 후 Appbar 페이지로 이동
-      } else {
-        const errorMessage = await response.text(); // 서버에서 받은 에러 메시지
-        setError(errorMessage); // 에러 상태 설정
-      }
-    } catch (error) {
-      console.error('로그인 중 오류 발생:', error);
-      setError('서버 오류');
+    if (response.ok) {
+      const result = await response.json();
+      localStorage.setItem('userId', result.id); // 서버에서 받은 사용자 ID 저장
+      localStorage.setItem('name', result.name); // 사용자 이름도 저장
+      console.log('저장된 userId:', localStorage.getItem('userId')); // localStorage에 저장된 userId 출력
+      console.log('저장된 name:', localStorage.getItem('name')); // localStorage에 저장된 name 출력
+
+      onLogin();
+      navigate('/appbar'); // 로그인 성공 후 Appbar로 이동
+    } else {
+      const errorMessage = await response.text();
+      setError(errorMessage); // 에러 메시지 표시
     }
-  };
+  } catch (error) {
+    console.error('로그인 중 오류 발생:', error);
+    setError('서버 오류');
+  }
+};
 
   const handleSignupClick = () => {
     navigate('/signup'); // 회원가입 페이지로 이동
@@ -51,7 +54,7 @@ export default function Login({ onLogin }) {
         backgroundColor: '#f5f5f5',
       }}
     >
-      <Card sx={{ width: 350, padding: 5, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <Card sx={{ width: 350, height: 500, padding: 5, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <CardContent>
           <Typography variant="h3" component="div" gutterBottom align="center" sx={{ fontFamily: 'cursive', fontWeight: 'bold' }}>
             𝓐𝓷𝓲𝓶𝓪𝓵𝓼

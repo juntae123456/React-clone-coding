@@ -11,19 +11,17 @@ import {
 } from '@mui/material';
 import { Favorite, ChatBubble, Send, Bookmark } from '@mui/icons-material';
 
-// PostCard 컴포넌트
-function PostCard({ userName, fileBlob, likesCount, feedword }) {
+export default function PostCard({ userName, fileBlob, likesCount, feedword }) {
   const [imageSrc, setImageSrc] = useState(''); // 이미지 소스를 상태로 저장
 
+  // 파일 Blob을 이미지로 변환하는 useEffect
   useEffect(() => {
     if (fileBlob) {
-      // 파일 객체를 이미지로 변환하기 위한 FileReader 사용
       const reader = new FileReader();
       reader.readAsDataURL(fileBlob); // 파일 데이터를 URL로 변환
 
-      // FileReader의 onload 이벤트로 변환된 이미지 데이터를 상태에 저장
       reader.onloadend = () => {
-        setImageSrc(reader.result); // 변환된 이미지 데이터
+        setImageSrc(reader.result); // 변환된 이미지 데이터를 상태에 저장
       };
     }
   }, [fileBlob]); // fileBlob이 변경될 때마다 실행
@@ -31,8 +29,8 @@ function PostCard({ userName, fileBlob, likesCount, feedword }) {
   const [liked, setLiked] = useState(false); // 좋아요 상태 관리
 
   const heartIconStyle = {
-    color: liked ? 'red' : 'white',
-    stroke: liked ? 'none' : 'black',
+    color: liked ? 'red' : 'white', // 좋아요 시 빨간색, 기본 흰색
+    stroke: liked ? 'none' : 'black', // 좋아요 시 테두리 제거, 기본 검정 테두리
     strokeWidth: 1.5,
   };
 
@@ -56,7 +54,7 @@ function PostCard({ userName, fileBlob, likesCount, feedword }) {
       {imageSrc && (
         <CardMedia
           component="img"
-          height="300"
+          height="800"
           image={imageSrc} // 이미지 소스를 출력
           alt="Post image"
           style={{ backgroundColor: '#6d6d6d' }} // 이미지가 없을 때 배경색 설정
@@ -89,5 +87,3 @@ function PostCard({ userName, fileBlob, likesCount, feedword }) {
     </Card>
   );
 }
-
-export default PostCard;

@@ -26,9 +26,57 @@ const insertFeed = (feedid, feedview, feedword, feedgood, callback) => {
   db.query(query, [feedid, feedview, feedword, feedgood], callback);
 };
 
-// 두 함수 모두 내보내기
+//프로필 삽입 함수
+const updateProfilePicture = (propilid, profileImage, callback) => {
+  // 먼저 해당 propilid가 존재하는지 확인하는 쿼리
+  const checkQuery = 'SELECT * FROM Propile WHERE propilid = ?';
+
+  db.query(checkQuery, [propilid], (err, results) => {
+    if (err) {
+      console.error('쿼리 실행 중 오류 발생:', err);
+      return callback(err, null);
+    }
+
+    if (results.length > 0) {
+      // 프로필이 이미 존재하면 UPDATE
+      const updateQuery = 'UPDATE Propile SET propileview = ? WHERE propilid = ?';
+      db.query(updateQuery, [profileImage, propilid], (err, result) => {
+        if (err) {
+          console.error('업데이트 중 오류 발생:', err);
+          return callback(err, null);
+        }
+        return callback(null, result); // 성공적으로 업데이트되면 결과 반환
+      });
+    } else {
+      // 프로필이 없으면 INSERT
+      const insertQuery = 'INSERT INTO Propile (propilid, propileview) VALUES (?, ?)';
+      db.query(insertQuery, [propilid, profileImage], (err, result) => {
+        if (err) {
+          console.error('삽입 중 오류 발생:', err);
+          return callback(err, null);
+        }
+    console.log('프로필 삽입 결과:', result); // 추가된 로그
+      });
+    }
+  });
+};
+// 프로필 사진 가져오는 함수
+const getProfilePicture = (propilid, callback) => {
+  const query = 'SELECT propileview FROM Propile WHERE propilid = ?';
+
+  db.query(query, [propilid], (err, result) => {
+    if (err) {
+      console.error('프로필 사진을 가져오는 중 오류 발생:', err);
+      return callback(err, null);
+    }
+    return callback(null, result);
+  });
+};
+//함수 모두 내보내기
 module.exports = {
   insertUser,
   getUserByUsername,
-  insertFeed
+  insertFeed,
+  updateProfilePicture,
+  getProfilePicture
 };
