@@ -1,30 +1,30 @@
 const express = require('express');
-const { getProfilePicture } = require('../db/queries'); // queries.js에서 함수 가져오기
+const db = require('../db/connection'); // queries.js에서 함수 가져오기
 const router = express.Router();
 
 // 프로필 사진 가져오기
-router.get('/getprofile/:propilid', (req, res) => {
-  const { propilid } = req.params;
+router.get('/', (req, res) => {
+  const query = 'SELECT Propile.propileview FROM Propile WHERE propilid = ?';
 
-  console.log('Received propilid:', propilid); // 로그 추가
-
-  getProfilePicture(propilid, (err, result) => {
+  db.query(query, [req.query.propilid], (err, result) => { // 요청에서 propilid 받기
     if (err) {
       console.error('프로필 사진을 가져오는 중 오류 발생:', err);
       return res.status(500).json({ message: '서버 오류' });
     }
 
-    if (result.length === 0 || !result[0].propileview) {
-      console.log('프로필 사진이 없습니다.'); // 로그 추가
+    if (result.length === 0) {
+      return res.status(404).json({ message: '프로필 사진을 찾을 수 없습니다.' });
+    }
+
+    const imageBuffer = result[0].propileview; // 데이터베이스에서 받은 이미지 Blob
+    if (!imageBuffer) {
       return res.status(404).json({ message: '프로필 사진이 없습니다.' });
     }
 
-    console.log('프로필 사진 가져오기 성공'); // 로그 추가
-
-    res.contentType('image/jpeg'); // 이미지 타입을 설정
-    res.send(result[0].propileview); // Blob 데이터를 반환
+    // 이미지가 존재하는 경우 바이너리 데이터로 응답
+    res.set('Content-Type', 'image/jpeg'); // 이미지 유형에 맞게 MIME 타입 설정 (예: JPEG)
+    res.send(imageBuffer); // 이미지 데이터를 바이너리로 전송
   });
 });
-
 
 module.exports = router;

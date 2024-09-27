@@ -3,10 +3,20 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/
 
 export default function AddProfile({ open, handleClose }) {
   const [selectedFile, setSelectedFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState(''); // 변환된 이미지 URL 상태 저장
   const userId = Number(localStorage.getItem('userId')); // 로컬 스토리지에서 사용자 ID 가져오기
 
   const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+    const file = event.target.files[0];
+    setSelectedFile(file);
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageUrl(reader.result); // Base64 URL로 변환된 이미지 저장
+      };
+      reader.readAsDataURL(file); // 파일을 Base64 형식으로 읽음
+    }
   };
 
   const handleUpload = () => {
@@ -49,6 +59,13 @@ export default function AddProfile({ open, handleClose }) {
       <DialogTitle>프로필 사진 변경</DialogTitle>
       <DialogContent>
         <input type="file" accept="image/*" onChange={handleFileChange} />
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt="미리보기"
+            style={{ width: '100%', marginTop: '10px' }}
+          />
+        )} {/* 선택한 이미지 미리보기 */}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} color="primary">취소</Button>

@@ -76,27 +76,25 @@ export default function ButtonAppBar() {
 
  // 프로필 사진 가져오기
 const fetchProfileImage = () => {
-  fetch(`http://localhost:3001/getprofile/${userId}`)
-    .then((response) => {
-      console.log('프로필 API 응답 상태:', response.status); // 응답 상태 확인
-      if (!response.ok) {
-        throw new Error('프로필 사진을 가져오는 중 오류 발생')
-      }
-      return response.blob(); // Blob 형태로 데이터를 받음
-    })
-    .then((blob) => {
-      console.log('받은 blob 크기:', blob.size); // 받은 blob의 크기 확인
-      if (blob.size > 0) {
-        const imageUrl = URL.createObjectURL(blob); // Blob을 URL로 변환
-        setImageSrc(imageUrl); // 상태에 이미지 URL을 저장
-      } else {
-        setImageSrc('/path/to/default/profile/image.png'); // 이미지가 없을 때 기본 이미지 설정
-      }
-    })
-    .catch((error) => {
-      console.error('프로필 사진을 가져오는 중 오류 발생(프론트):', error);
-      setImageSrc('/path/to/default/profile/image.png'); // 오류 발생 시 기본 이미지 설정
-    });
+fetch(`http://localhost:3001/getprofile?propilid=${userId}`)
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error('프로필 사진을 가져오는 중 오류 발생');
+    }
+    return response.blob(); // Blob 형태로 데이터를 받음
+  })
+  .then((blob) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob); // Blob을 Base64로 변환
+    reader.onloadend = () => {
+      const base64data = reader.result;
+      setImageSrc(base64data); // Base64 데이터를 상태에 저장
+    };
+  })
+  .catch((error) => {
+    console.error('프로필 사진을 가져오는 중 오류 발생:', error);
+    setImageSrc('/path/to/default/profile/image.png'); // 기본 이미지 설정
+  });
 };
 
 
@@ -104,7 +102,7 @@ const fetchProfileImage = () => {
   // 페이지 로드 시 프로필 이미지 불러오기
   useEffect(() => {
     fetchProfileImage(); // 컴포넌트 마운트 시 프로필 사진 불러오기
-  }, [userId]);
+  }, []);
 
   // 피드 추가가 완료되면 Contents 컴포넌트 업데이트
   const refreshContents = () => {
@@ -153,7 +151,7 @@ const fetchProfileImage = () => {
             <AddIcon sx={{ color: 'black' }} />
           </IconButton>
           <IconButton size="large" aria-label="profile" onClick={handleProfileDialogOpen}>
-            <Avatar src={imageSrc} sx={{ width: 35, height: 35 }} /> {/* 프로필 사진 미리보기 */}
+            <Avatar src={imageSrc || '/path/to/default/profile/image.png'} sx={{ width: 35, height: 35 }} />
           </IconButton>
         </Toolbar>
       </AppBar>

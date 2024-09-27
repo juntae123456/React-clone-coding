@@ -60,23 +60,10 @@ const updateProfilePicture = (propilid, profileImage, callback) => {
     }
   });
 };
-// 프로필 사진 가져오는 함수
-const getProfilePicture = (propilid, callback) => {
-  const query = 'SELECT propileview FROM Propile WHERE propilid = ?';
-
-  db.query(query, [propilid], (err, result) => {
-    if (err) {
-      console.error('프로필 사진을 가져오는 중 오류 발생:', err);
-      return callback(err, null);
-    }
-    return callback(null, result);
-  });
-};
 //함수 모두 내보내기
 module.exports = {
   insertUser,
   getUserByUsername,
   insertFeed,
   updateProfilePicture,
-  getProfilePicture
 };
