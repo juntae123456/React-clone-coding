@@ -48,6 +48,8 @@ function SuggestedUser({ userName, description }) {
 export default function Contents({ refresh }) {
   const [feeds, setFeeds] = useState([]); // 피드 데이터를 저장할 상태
   const [loggedInUserName, setLoggedInUserName] = useState(''); // 로그인한 사용자 이름 상태
+  const [profileImageSrc, setProfileImageSrc] = useState(null); // 프로필 이미지 상태 추가
+  const userId = Number(localStorage.getItem('userId')); // 로컬 스토리지에서 사용자 ID 가져오기
 
   // 백엔드에서 피드 데이터를 가져옴
   const fetchFeeds = () => {
@@ -65,6 +67,22 @@ export default function Contents({ refresh }) {
       });
   };
 
+    // 로그인한 사용자의 프로필 이미지를 가져오는 함수
+  const fetchProfileImage = () => {
+    fetch(`http://localhost:3001/getprofile?propilid=${userId}`)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => {
+          setProfileImageSrc(reader.result); // 프로필 이미지를 상태에 저장
+        };
+      })
+      .catch((error) => {
+        console.error('프로필 이미지를 가져오는 중 오류 발생:', error);
+      });
+  };
+
   // 컴포넌트가 마운트될 때 피드 데이터를 처음 가져옴
   useEffect(() => {
     fetchFeeds();
@@ -78,6 +96,12 @@ export default function Contents({ refresh }) {
   useEffect(() => {
     fetchFeeds();
   }, [refresh]);
+
+  useEffect(() => {
+    if (userId) {
+      fetchProfileImage(); // 로그인한 사용자 프로필 이미지 가져오기
+    }
+  }, [userId]);
 
   return (
     <Box p={2} maxWidth={1200} margin="0 auto">
@@ -106,7 +130,9 @@ export default function Contents({ refresh }) {
         <Box flex={1}>
           <Card style={{ padding: '16px' }}>
             <Box display="flex" alignItems="center">
-              <Avatar sx={{ width: 56, height: 56 }}>{loggedInUserName[0]?.toUpperCase()}</Avatar> {/* 로그인한 사용자의 첫 글자 */}
+              <Avatar sx={{ width: 56, height: 56 }} src={profileImageSrc || ''}>
+                {loggedInUserName ? loggedInUserName[0].toUpperCase() : 'U'}
+              </Avatar> {/* 프로필 사진이 없을 때는 이름의 첫 글자 표시 */}
               <Box ml={2}>
                 <Typography fontWeight="bold">{loggedInUserName}</Typography>
               </Box>
