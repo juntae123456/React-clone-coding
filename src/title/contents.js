@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Card, Avatar, Typography, Button } from '@mui/material';
 import PostCard from './PostCard'; // PostCard 컴포넌트 가져오기
-import AddFeed from './addfeed'; // AddFeed 컴포넌트 가져오기
+
 // StoryList 컴포넌트
 function StoryList() {
   const stories = ['s_won', 'vviva', 'delicion', 'korean', 'apt', 'sangsi', '__two'];
@@ -44,7 +44,6 @@ function SuggestedUser({ userName, description }) {
     </Box>
   );
 }
-
 // Main Contents 컴포넌트
 export default function Contents({ refresh }) {
   const [feeds, setFeeds] = useState([]); // 피드 데이터를 저장할 상태
@@ -66,7 +65,7 @@ export default function Contents({ refresh }) {
       });
   };
 
-  // 컴포넌트가 마운트될 때 처음 피드 데이터를 가져옴
+  // 컴포넌트가 마운트될 때 피드 데이터를 처음 가져옴
   useEffect(() => {
     fetchFeeds();
     const userName = localStorage.getItem('name'); // 로컬 스토리지에서 사용자 이름 가져오기
@@ -77,12 +76,11 @@ export default function Contents({ refresh }) {
 
   // refresh 상태가 변경될 때 피드를 새로 불러옴
   useEffect(() => {
-    fetchFeeds(); // 피드 추가 후 데이터를 다시 불러옴
+    fetchFeeds();
   }, [refresh]);
 
   return (
     <Box p={2} maxWidth={1200} margin="0 auto">
-      {/* 레이아웃: 왼쪽 컬럼과 오른쪽 컬럼 */}
       <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={2}>
         {/* 왼쪽 컬럼: 피드 */}
         <Box flex={2}>
@@ -94,7 +92,8 @@ export default function Contents({ refresh }) {
             {feeds.map((feed) => (
               <PostCard
                 key={feed.id}
-                userName={feed.userName} // Feed를 저장한 사용자 이름
+                feedid={feed.feedid}
+                userName={feed.userName} // 각 피드 작성자의 이름
                 fileBlob={feed.fileBlob} // Blob으로 변환된 이미지 파일
                 likesCount={feed.feedgood} // 좋아요 수
                 feedword={feed.feedword} // 피드 내용
@@ -103,25 +102,22 @@ export default function Contents({ refresh }) {
           </Box>
         </Box>
 
-        {/* 오른쪽 컬럼: 프로필 */}
+        {/* 오른쪽 컬럼: 로그인한 사용자 프로필 */}
         <Box flex={1}>
           <Card style={{ padding: '16px' }}>
             <Box display="flex" alignItems="center">
-              <Avatar sx={{ width: 56, height: 56 }}>{loggedInUserName ? loggedInUserName[0]?.toUpperCase() : 'U'}</Avatar> {/* 이름의 첫 글자 */}
+              <Avatar sx={{ width: 56, height: 56 }}>{loggedInUserName[0]?.toUpperCase()}</Avatar> {/* 로그인한 사용자의 첫 글자 */}
               <Box ml={2}>
-                <Typography fontWeight="bold">{loggedInUserName || 'User'}</Typography> {/* 로그인한 사용자 이름 표시 */}
+                <Typography fontWeight="bold">{loggedInUserName}</Typography>
               </Box>
             </Box>
-
             <Box my={2}>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="subtitle1" color="textSecondary">
-                  회원님을 위한 추천
-                </Typography>
-                <Button variant="text" color="primary">모두 보기</Button>
-              </Box>
+              <Typography variant="subtitle1" color="textSecondary">
+                회원님을 위한 추천
+              </Typography>
+              <Button variant="text" color="primary">모두 보기</Button>
             </Box>
-            <SuggestedUser userName="samsung" description="hyundai님 외 4명이 팔로우합니다." /> {/* 추천 사용자 렌더링 */}
+            <SuggestedUser userName="samsung" description="hyundai님 외 4명이 팔로우합니다." />
           </Card>
         </Box>
       </Box>
