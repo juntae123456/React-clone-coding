@@ -12,6 +12,7 @@ const addStoryRouter = require('./routes/addstory');
 const getStoryRouter = require('./routes/getstory');
 const getUsersRouter = require('./routes/getusers');
 const likeFeedRouter = require('./routes/likefeed'); // 경로에서 라우트 가져오기
+const checklikeRouter = require('./routes/checklike');
 
 const app = express();
 const port = 3001;
@@ -45,6 +46,8 @@ app.use('/getstory', getStoryRouter);
 app.use('/getusers', getUsersRouter);
 
 app.use('/likefeed', likeFeedRouter); // '/likefeed' 경로에 라우트 추가
+app.use('/checklike', checklikeRouter);
+
 
 app.listen(port, () => {
   console.log('서버가 http://localhost:${port}에서 실행 중입니다.');

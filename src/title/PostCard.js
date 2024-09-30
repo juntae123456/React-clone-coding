@@ -15,6 +15,7 @@ export default function PostCard({ id, feedid, userName, fileBlob, likesCount, f
   const [profileImageSrc, setProfileImageSrc] = useState(null); // 각 포스트 작성자의 프로필 이미지
   const [currentLikes, setCurrentLikes] = useState(likesCount); // 좋아요 수 상태 관리
   const [liked, setLiked] = useState(false); // 좋아요 상태 관리
+  const userId = Number(localStorage.getItem('userId'));
 
   // 각 사용자의 프로필 이미지를 가져오는 함수 (feedid를 사용)
   const fetchProfileImage = () => {
@@ -32,10 +33,30 @@ export default function PostCard({ id, feedid, userName, fileBlob, likesCount, f
       });
   };
 
+   // 사용자가 해당 피드에 좋아요를 눌렀는지 확인
+  const checkIfLiked = () => {
+    fetch('http://localhost:3001/checklike', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ feedId: id, userId: userId }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setLiked(data.liked); // 서버에서 받은 liked 상태로 업데이트
+      })
+      .catch((error) => {
+        console.error('좋아요 상태 확인 중 오류 발생:', error);
+      });
+  };
+
+
   // 컴포넌트가 마운트될 때 해당 작성자의 프로필 이미지 불러오기
   useEffect(() => {
     fetchProfileImage();
-  }, [userName]);
+    checkIfLiked();
+  }, [userName,userId]);
 
   const [imageSrc, setImageSrc] = useState(''); // 파일 이미지를 상태로 저장
 
@@ -50,30 +71,29 @@ export default function PostCard({ id, feedid, userName, fileBlob, likesCount, f
     }
   }, [fileBlob]);
 
-  const handleLikeClick = () => {
-    console.log('feedId:', id); // feedId 값이 제대로 전달되는지 확인
-    const newLikedState = !liked; // 현재 liked 상태를 반전시킴
+const handleLikeClick = () => {
+  const newLikedState = !liked;
 
-    // 좋아요 수 업데이트 로직 (클라이언트에서만 일단 상태 업데이트)
-    setCurrentLikes((prevLikes) => newLikedState ? prevLikes + 1 : prevLikes - 1); // 좋아요 상태에 따라 수 증가/감소
+  // 좋아요 수 업데이트 로직 (클라이언트에서만 일단 상태 업데이트)
+  setCurrentLikes((prevLikes) => newLikedState ? prevLikes + 1 : prevLikes - 1);
 
-    // 서버에 좋아요 수 업데이트 요청 (feedid 대신 id 사용)
-    fetch('http://localhost:3001/likefeed', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ feedId: id, liked: !newLikedState }), // 게시물 id로 좋아요 상태를 보냄
+  // 서버에 좋아요 수 업데이트 요청
+  fetch('http://localhost:3001/likefeed', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ feedId: id, userId: userId, liked: newLikedState }), // userId 추가
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log('좋아요 업데이트 성공:', data);
+      setLiked(newLikedState); // 서버 응답 후 liked 상태 업데이트
     })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('좋아요 업데이트 성공:', data);
-        setLiked(newLikedState); // 서버 응답 후 liked 상태 업데이트
-      })
-      .catch((error) => {
-        console.error('좋아요 업데이트 중 오류 발생:', error);
-      });
-  };
+    .catch((error) => {
+      console.error('좋아요 업데이트 중 오류 발생:', error);
+    });
+};
 
   const heartIconStyle = {
     color: liked ? 'red' : 'white',
