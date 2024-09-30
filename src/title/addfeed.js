@@ -32,6 +32,7 @@ export default function AddFeed({ open, handleClose, fetchFeeds }) {
 
           // 피드를 다시 불러옴
           fetchFeeds(); // 부모 컴포넌트에서 전달된 fetchFeeds 함수 호출
+          setFeedword(''); //피드초기화
 
           // 업로드 후 다이얼로그 닫기
           handleClose();

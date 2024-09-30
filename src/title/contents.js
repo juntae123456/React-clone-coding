@@ -1,55 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Card, Avatar, Typography, Button } from '@mui/material';
 import PostCard from './PostCard'; // PostCard 컴포넌트 가져오기
-
-// StoryList 컴포넌트
-function StoryList() {
-  const stories = ['s_won', 'vviva', 'delicion', 'korean', 'apt', 'sangsi', '__two'];
-
-  return (
-    <Box
-      display="flex"
-      justifyContent="left"
-      p={2}
-      overflow="auto"
-      sx={{
-        backgroundColor: 'white',
-        borderRadius: '0px',
-        border: '1px solid #e0e0e0',
-        boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.05)',
-      }}
-    >
-      {stories.map((story) => (
-        <Box key={story} mx={1} textAlign="center">
-          <Avatar sx={{ bgcolor: '#b39ddb' }}>{story[0]?.toUpperCase() || ''}</Avatar> {/* toUpperCase 전에 체크 */}
-          <Typography variant="caption">{story}</Typography>
-        </Box>
-      ))}
-    </Box>
-  );
-}
+import StoryList from "./StoryList";//storylist 컴포넌트 가져오기
 
 // SuggestedUser 컴포넌트
-function SuggestedUser({ userName, description }) {
+function SuggestedUser({ userName, description, userImage }) {
   return (
     <Box display="flex" justifyContent="space-between" alignItems="center" p={2} borderBottom="1px solid #e0e0e0">
       <Box display="flex" alignItems="center">
-        <Avatar>{userName[0]?.toUpperCase() || ''}</Avatar> {/* toUpperCase 전에 체크 */}
+        <Avatar src={userImage} alt={userName}>
+          {!userImage && userName[0]?.toUpperCase()} {/* 프로필 이미지가 없으면 첫 글자를 표시 */}
+        </Avatar>
         <Box ml={2}>
           <Typography fontWeight="bold">{userName}</Typography>
           <Typography variant="body2" color="textSecondary">{description}</Typography>
         </Box>
       </Box>
-      <Button variant="text" color="primary">팔로우</Button>
+      <Button variant="text" color="primary" onClick={() => alert(`팔로우: ${userName}`)}>
+        팔로우
+      </Button>
     </Box>
   );
 }
+
+
 // Main Contents 컴포넌트
 export default function Contents({ refresh }) {
-  const [feeds, setFeeds] = useState([]); // 피드 데이터를 저장할 상태
-  const [loggedInUserName, setLoggedInUserName] = useState(''); // 로그인한 사용자 이름 상태
-  const [profileImageSrc, setProfileImageSrc] = useState(null); // 프로필 이미지 상태 추가
+  const [feeds, setFeeds] = useState([]);
+  const [loggedInUserName, setLoggedInUserName] = useState('');
+  const [profileImageSrc, setProfileImageSrc] = useState(null);
   const userId = Number(localStorage.getItem('userId')); // 로컬 스토리지에서 사용자 ID 가져오기
+
 
   // 백엔드에서 피드 데이터를 가져옴
   const fetchFeeds = () => {
@@ -115,7 +96,7 @@ export default function Contents({ refresh }) {
             {/* 가져온 피드 데이터를 렌더링 */}
             {feeds.map((feed) => (
               <PostCard
-                key={feed.id}
+                id={feed.id}
                 feedid={feed.feedid}
                 userName={feed.userName} // 각 피드 작성자의 이름
                 fileBlob={feed.fileBlob} // Blob으로 변환된 이미지 파일

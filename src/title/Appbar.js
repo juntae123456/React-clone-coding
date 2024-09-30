@@ -6,15 +6,16 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
-import { IconButton, Avatar } from '@mui/material';
+import { IconButton, Avatar, Menu, MenuItem } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import SendIcon from '@mui/icons-material/Send';
 import ExploreIcon from '@mui/icons-material/Explore';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import AddIcon from '@mui/icons-material/Add';
-import AddFeed from './addfeed'; // AddFeed 컴포넌트
-import Contents from './contents'; // Contents 컴포넌트
-import AddProfile from './addprofile'; // AddProfile 컴포넌트 추가
+import AddFeed from './addfeed';
+import AddStory from './addstory';
+import Contents from './contents';
+import AddProfile from './addprofile';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -59,10 +60,12 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function ButtonAppBar() {
   const [selectedIcon, setSelectedIcon] = useState('home');
   const [openAddFeed, setOpenAddFeed] = useState(false);
+  const [openAddStory, setOpenAddStory] = useState(false);
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
-  const [imageSrc, setImageSrc] = useState(null); // Base64 이미지 URL 상태
-  const [refresh, setRefresh] = useState(false); // 피드 업데이트 트리거 상태
-  const userId = Number(localStorage.getItem('userId')); // 로컬 스토리지에서 사용자 ID 가져오기
+  const [imageSrc, setImageSrc] = useState(null);
+  const [refresh, setRefresh] = useState(false);
+  const userId = Number(localStorage.getItem('userId'));
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleIconClick = (icon) => {
     setSelectedIcon(icon);
@@ -74,50 +77,54 @@ export default function ButtonAppBar() {
       : { color: 'white', stroke: 'black', strokeWidth: 1 };
   };
 
- // 프로필 사진 가져오기
-const fetchProfileImage = () => {
-fetch(`http://localhost:3001/getprofile?propilid=${userId}`)
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error('프로필 사진을 가져오는 중 오류 발생');
-    }
-    return response.blob(); // Blob 형태로 데이터를 받음
-  })
-  .then((blob) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(blob); // Blob을 Base64로 변환
-    reader.onloadend = () => {
-      const base64data = reader.result;
-      setImageSrc(base64data); // Base64 데이터를 상태에 저장
-    };
-  })
-  .catch((error) => {
-    console.error('프로필 사진을 가져오는 중 오류 발생:', error);
-    setImageSrc('/path/to/default/profile/image.png'); // 기본 이미지 설정
-  });
-};
+  const fetchProfileImage = () => {
+    fetch(`http://localhost:3001/getprofile?propilid=${userId}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('프로필 사진을 가져오는 중 오류 발생');
+        }
+        return response.blob();
+      })
+      .then((blob) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => {
+          const base64data = reader.result;
+          setImageSrc(base64data);
+        };
+      })
+      .catch((error) => {
+        console.error('프로필 사진을 가져오는 중 오류 발생:', error);
+        setImageSrc('/path/to/default/profile/image.png');
+      });
+  };
 
-
-
-  // 페이지 로드 시 프로필 이미지 불러오기
   useEffect(() => {
-    fetchProfileImage(); // 컴포넌트 마운트 시 프로필 사진 불러오기
+    fetchProfileImage();
   }, []);
 
-  // 피드 추가가 완료되면 Contents 컴포넌트 업데이트
   const refreshContents = () => {
-    setRefresh(!refresh); // refresh 상태 변경을 통해 Contents 컴포넌트 새로고침 트리거
+    console.log("refresh triggered");  // 확인을 위해 로그 출력
+    setRefresh(!refresh);  // refresh 상태 변경
   };
 
   const handleAddFeedOpen = () => setOpenAddFeed(true);
   const handleAddFeedClose = () => setOpenAddFeed(false);
 
-  const handleProfileDialogOpen = () => {
-    setOpenProfileDialog(true);
-  };
+  const handleAddStoryOpen = () => setOpenAddStory(true);
+  const handleAddStoryClose = () => setOpenAddStory(false);
+
+  const handleProfileDialogOpen = () => setOpenProfileDialog(true);
   const handleProfileDialogClose = () => {
     setOpenProfileDialog(false);
-    fetchProfileImage(); // 프로필 사진 업데이트 후 갱신
+    fetchProfileImage();
+  };
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
   };
 
   return (
@@ -147,7 +154,7 @@ fetch(`http://localhost:3001/getprofile?propilid=${userId}`)
           <IconButton size="large" aria-label="favorite" onClick={() => handleIconClick('favorite')}>
             <FavoriteIcon sx={getIconStyles('favorite')} />
           </IconButton>
-          <IconButton size="large" aria-label="add" onClick={handleAddFeedOpen}>
+          <IconButton size="large" aria-label="add" onClick={handleMenuOpen}>
             <AddIcon sx={{ color: 'black' }} />
           </IconButton>
           <IconButton size="large" aria-label="profile" onClick={handleProfileDialogOpen}>
@@ -155,12 +162,32 @@ fetch(`http://localhost:3001/getprofile?propilid=${userId}`)
           </IconButton>
         </Toolbar>
       </AppBar>
-      {/* Contents 컴포넌트에 refresh 상태를 전달 */}
+
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+        <MenuItem
+          onClick={() => {
+            handleAddFeedOpen();
+            handleMenuClose();
+          }}
+        >
+          피드 추가
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            handleAddStoryOpen();
+            handleMenuClose();
+          }}
+        >
+          스토리 추가
+        </MenuItem>
+      </Menu>
+
       <Contents refresh={refresh} />
-      {/* AddFeed 다이얼로그 */}
+
       <AddFeed open={openAddFeed} handleClose={handleAddFeedClose} fetchFeeds={refreshContents} />
 
-      {/* AddProfile 다이얼로그 */}
+      <AddStory open={openAddStory} handleClose={handleAddStoryClose} fetchStories={refreshContents} />
+
       <AddProfile open={openProfileDialog} handleClose={handleProfileDialogClose} />
     </Box>
   );

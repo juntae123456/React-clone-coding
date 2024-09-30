@@ -8,6 +8,10 @@ const addfeedRouter = require('./routes/addfeed'); // addfeed 라우트 추가
 const getFeedRouter = require('./routes/getfeed'); // 피드 데이터 가져오는 API 추가
 const addprofileRouter = require('./routes/addprofile');
 const getprofilesRouter = require('./routes/getprofile');
+const addStoryRouter = require('./routes/addstory');
+const getStoryRouter = require('./routes/getstory');
+const getUsersRouter = require('./routes/getusers');
+const likeFeedRouter = require('./routes/likefeed'); // 경로에서 라우트 가져오기
 
 const app = express();
 const port = 3001;
@@ -35,6 +39,12 @@ app.use('/addprofile', addprofileRouter);
 
 app.use('/getprofile', getprofilesRouter);
 
+app.use('/addstory', addStoryRouter); // '/addstory' 경로로 라우터 등록
+app.use('/getstory', getStoryRouter);
+
+app.use('/getusers', getUsersRouter);
+
+app.use('/likefeed', likeFeedRouter); // '/likefeed' 경로에 라우트 추가
 
 app.listen(port, () => {
   console.log('서버가 http://localhost:${port}에서 실행 중입니다.');

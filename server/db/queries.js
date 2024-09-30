@@ -60,10 +60,22 @@ const updateProfilePicture = (propilid, profileImage, callback) => {
     }
   });
 };
+// 스토리 추가 함수
+const addStory = (storyId, storyBuffer, callback) => {
+  const query = 'INSERT INTO Story (Storyid, storyview) VALUES (?, ?)';
+  db.query(query, [storyId, storyBuffer], (err, result) => {
+    if (err) {
+      console.error('스토리 추가 쿼리 중 오류 발생:', err);
+      return callback(err); // 콜백 함수로 오류를 반환
+    }
+    return callback(null, result); // 성공적으로 추가되면 콜백에 결과 반환
+  });
+};
 //함수 모두 내보내기
 module.exports = {
   insertUser,
   getUserByUsername,
   insertFeed,
   updateProfilePicture,
+  addStory,
 };
