@@ -19,7 +19,7 @@ export default function AddStory({ open, handleClose, fetchStories }) {
     formData.append('story', selectedImage);
     formData.append('Storyid', userId); // 로그인된 사용자 ID
 
-    fetch('http://localhost:3001/addstory', {
+    fetch('http://10.0.1.38:3001/addstory', {
       method: 'POST',
       body: formData,
     })

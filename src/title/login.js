@@ -10,7 +10,7 @@ export default function Login({ onLogin }) {
 
 const handleLoginClick = async () => {
   try {
-    const response = await fetch('http://localhost:3001/login', {
+    const response = await fetch('http://10.0.1.38:3001/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

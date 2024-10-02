@@ -1,11 +1,12 @@
 const mysql = require('mysql');
 
 const db = mysql.createConnection({
-  host: 'localhost',   // MySQL 서버 주소 (로컬 서버)
+  host: '0.0.0.0',   // MySQL 서버 주소 (로컬 서버)
   port: '3306',        // MySQL 기본 포트 번호
   user: 'root',        // MySQL 사용자명
   password: '',        // MySQL 비밀번호 (설치 시 설정한 비밀번호)
   database: 'animals', // 사용할 데이터베이스 이름
+  reconnect: true
 });
 
 db.connect((err) => {

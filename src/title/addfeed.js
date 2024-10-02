@@ -22,7 +22,7 @@ export default function AddFeed({ open, handleClose, fetchFeeds }) {
       formData.append('feedword', feedword); // 피드 설명
       formData.append('feedid', userId); // 로그인된 사용자 ID (feedid)
 
-      fetch('http://localhost:3001/addfeed', {
+      fetch('http://10.0.1.38:3001/addfeed', {
         method: 'POST',
         body: formData,
       })

@@ -10,7 +10,7 @@ export default function StoryDialog({ open, handleClose, storyId }) {
 
   // 스토리 이미지를 가져오는 함수
   const fetchStory = () => {
-    fetch(`http://localhost:3001/getstory/${storyId}`)
+    fetch(`http://10.0.1.38:3001/getstory/${storyId}`)
       .then((response) => response.json())
       .then((data) => {
         setStories(data); // 여러 스토리 데이터를 상태에 저장
