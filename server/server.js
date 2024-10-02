@@ -21,6 +21,8 @@ const messagesRouter = require('./routes/messages');
 const deleteFeedRouter = require('./routes/deletefeed'); // 추가한 피드 삭제 라우트
 const markMessagesReadRouter = require('./routes/markmessagesread');
 const messageusersRouter = require('./routes/messageusers');
+const addcommentRouter = require('./routes/addcomment'); // Corrected relative path
+const getcommentsRouter = require('./routes/getcomments'); // Corrected relative path
 
 const app = express();
 const server = http.createServer(app); // http.Server 객체로 app을 감쌉니다.
@@ -51,8 +53,24 @@ app.use('/messages', messagesRouter); // 메시지 라우트
 app.use('/deletefeed', deleteFeedRouter); // 피드 삭제 라우트 추가
 app.use('/markmessagesread', markMessagesReadRouter); // 미들웨어로 라우트 연결
 app.use('/messageusers',messageusersRouter);
+app.use('/addcomment',addcommentRouter);
+app.use('/getcomments',getcommentsRouter);
 // 소켓 초기화
 const io = initializeSocket(server);
+
+io.on('connection', (socket) => {
+  console.log('사용자가 연결되었습니다.');
+
+  // 메시지를 수신하고, 다른 사용자에게 전송
+  socket.on('sendMessage', (message) => {
+    // 모든 클라이언트에게 메시지 전송
+    io.emit('receiveMessage', message);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('사용자가 연결을 끊었습니다.');
+  });
+});
 
 // 정적 파일 제공 (배포 시 사용)
 app.use(express.static(path.join(__dirname, 'public')));

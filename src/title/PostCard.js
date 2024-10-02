@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Avatar,
     Box,
@@ -7,15 +7,21 @@ import {
     CardMedia,
     CardContent,
     IconButton,
-    Typography
+    Typography,
+    TextField,
+    Button
 } from '@mui/material';
-import {Favorite, ChatBubble, Send, Bookmark, Delete} from '@mui/icons-material';
+import { Favorite, ChatBubble, Send, Bookmark, Delete } from '@mui/icons-material';
 
-export default function PostCard({id, feedid, userName, fileBlob, likesCount, feedword, onDelete}) {
+export default function PostCard({ id, feedid, userName, fileBlob, likesCount, feedword, onDelete }) {
     const [profileImageSrc, setProfileImageSrc] = useState(null); // 각 포스트 작성자의 프로필 이미지
     const [currentLikes, setCurrentLikes] = useState(likesCount); // 좋아요 수 상태 관리
     const [liked, setLiked] = useState(false); // 좋아요 상태 관리
-    const loggedInUserId = Number(localStorage.getItem('userId')); // 로그인한 사용자 ID
+    const [imageSrc, setImageSrc] = useState(''); // 이미지 상태 추가
+    const [commentsOpen, setCommentsOpen] = useState(false); // 댓글창 열림/닫힘 상태
+    const [comments, setComments] = useState([]); // 댓글 목록 상태
+    const [newComment, setNewComment] = useState(''); // 새로 작성 중인 댓글
+    const loggedInUserId = Number(localStorage.getItem('userId'));
 
     // 각 사용자의 프로필 이미지를 가져오는 함수 (feedid를 사용)
     const fetchProfileImage = () => {
@@ -40,7 +46,7 @@ export default function PostCard({id, feedid, userName, fileBlob, likesCount, fe
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({feedId: id, userId: loggedInUserId}),
+            body: JSON.stringify({ feedId: id, userId: loggedInUserId }),
         })
             .then((response) => response.json())
             .then((data) => {
@@ -51,13 +57,17 @@ export default function PostCard({id, feedid, userName, fileBlob, likesCount, fe
             });
     };
 
-    // 컴포넌트가 마운트될 때 해당 작성자의 프로필 이미지 불러오기
-    useEffect(() => {
-        fetchProfileImage();
-        checkIfLiked();
-    }, [userName, loggedInUserId]);
-
-    const [imageSrc, setImageSrc] = useState(''); // 파일 이미지를 상태로 저장
+    // 댓글 가져오기 함수
+    const fetchComments = () => {
+        fetch(`http://10.0.1.38:3001/getcomments/${id}`)
+            .then((response) => response.json())
+            .then((data) => {
+                setComments(data); // 댓글 목록 업데이트
+            })
+            .catch((error) => {
+                console.error('댓글을 가져오는 중 오류 발생:', error);
+            });
+    };
 
     // 파일 Blob을 이미지로 변환
     useEffect(() => {
@@ -70,45 +80,65 @@ export default function PostCard({id, feedid, userName, fileBlob, likesCount, fe
         }
     }, [fileBlob]);
 
+    // 컴포넌트가 마운트될 때 해당 작성자의 프로필 이미지 불러오기
+    useEffect(() => {
+        fetchProfileImage();
+        checkIfLiked();
+        fetchComments();
+    }, [userName, loggedInUserId]);
+
     const handleLikeClick = () => {
         const newLikedState = !liked;
 
-        // 좋아요 수 업데이트 로직 (클라이언트에서만 일단 상태 업데이트)
-        setCurrentLikes((prevLikes) => newLikedState ? prevLikes + 1 : prevLikes - 1);
+        setCurrentLikes((prevLikes) => (newLikedState ? prevLikes + 1 : prevLikes - 1));
+        setLiked(newLikedState);
 
-        // 서버에 좋아요 수 업데이트 요청
         fetch('http://10.0.1.38:3001/likefeed', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ feedId: id, userId: loggedInUserId, liked: newLikedState }),
+        }).catch((error) => console.error('좋아요 업데이트 중 오류 발생:', error));
+    };
+
+    const handleDeleteClick = () => {
+        fetch(`http://10.0.1.38:3001/deletefeed/${id}`, { method: 'DELETE' })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success && onDelete) onDelete(id);
+            })
+            .catch((error) => console.error('피드 삭제 중 오류 발생:', error));
+    };
+
+    const handleCommentSubmit = () => {
+        if (!newComment.trim()) return;
+
+        const commentData = {
+            udid: id,
+            logid: loggedInUserId,
+            udcont: newComment,
+        };
+
+        fetch('http://10.0.1.38:3001/addcomment', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({feedId: id, userId: loggedInUserId, liked: newLikedState}), // userId 추가
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log('좋아요 업데이트 성공:', data);
-                setLiked(newLikedState); // 서버 응답 후 liked 상태 업데이트
-            })
-            .catch((error) => {
-                console.error('좋아요 업데이트 중 오류 발생:', error);
-            });
-    };
-
-    const handleDeleteClick = () => {
-        // 서버에 피드 삭제 요청
-        fetch(`http://10.0.1.38:3001/deletefeed/${id}`, {
-            method: 'DELETE',
+            body: JSON.stringify(commentData),
         })
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
-                    console.log('피드 삭제 성공');
-                    if (onDelete) onDelete(id); // 삭제 후 부모 컴포넌트에게 알림
+                    fetchComments(); // 댓글 새로고침
+                    setNewComment(''); // 입력창 초기화
                 }
             })
             .catch((error) => {
-                console.error('피드 삭제 중 오류 발생:', error);
+                console.error('댓글 추가 중 오류 발생:', error);
             });
+    };
+
+    const handleCommentToggle = () => {
+        setCommentsOpen(!commentsOpen);
     };
 
     const heartIconStyle = {
@@ -124,23 +154,22 @@ export default function PostCard({id, feedid, userName, fileBlob, likesCount, fe
     };
 
     return (
-        <Card style={{marginBottom: '20px'}}>
+        <Card style={{ marginBottom: '20px' }}>
             <CardHeader
                 avatar={
                     <Avatar aria-label="profile" src={profileImageSrc || ''}>
-                        {!profileImageSrc && userName[0].toUpperCase()} {/* 프로필 이미지가 없을 경우 이름 첫 글자 표시 */}
+                        {!profileImageSrc && userName[0].toUpperCase()}
                     </Avatar>
                 }
                 title={userName}
                 action={
                     loggedInUserId === feedid && (
                         <IconButton aria-label="delete" onClick={handleDeleteClick}>
-                            <Delete/>
+                            <Delete />
                         </IconButton>
                     )
-                } // 작성자와 현재 사용자가 같을 때만 삭제 버튼 표시
+                }
             />
-            {/* 변환된 이미지 데이터를 렌더링 */}
             {imageSrc && (
                 <CardMedia
                     component="img"
@@ -153,17 +182,17 @@ export default function PostCard({id, feedid, userName, fileBlob, likesCount, fe
                 <Box display="flex" justifyContent="space-between">
                     <Box display="flex">
                         <IconButton aria-label="add to favorites" onClick={handleLikeClick}>
-                            <Favorite sx={heartIconStyle}/>
+                            <Favorite sx={heartIconStyle} />
                         </IconButton>
-                        <IconButton aria-label="comment">
-                            <ChatBubble sx={iconStyle}/>
+                        <IconButton aria-label="comment" onClick={handleCommentToggle}>
+                            <ChatBubble sx={iconStyle} />
                         </IconButton>
                         <IconButton aria-label="send">
-                            <Send sx={iconStyle}/>
+                            <Send sx={iconStyle} />
                         </IconButton>
                     </Box>
                     <IconButton aria-label="bookmark">
-                        <Bookmark sx={iconStyle}/>
+                        <Bookmark sx={iconStyle} />
                     </IconButton>
                 </Box>
                 <Typography variant="body2" component="div" fontWeight="bold">
@@ -172,6 +201,36 @@ export default function PostCard({id, feedid, userName, fileBlob, likesCount, fe
                 <Typography variant="body2" component="div" color="textSecondary">
                     {feedword}
                 </Typography>
+
+                {/* 댓글 영역 */}
+                {commentsOpen && (
+                    <Box mt={2}>
+                        <Typography variant="body2" fontWeight="bold">
+                            댓글
+                        </Typography>
+                        {comments.map((comment) => (
+                            <Box key={comment.id} mt={1}>
+                                <Typography variant="body2" fontWeight="bold">
+                                    {comment.name}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                    {comment.udcont}
+                                </Typography>
+                            </Box>
+                        ))}
+                        <Box mt={2}>
+                            <TextField
+                                fullWidth
+                                placeholder="댓글을 입력하세요"
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                            />
+                            <Button onClick={handleCommentSubmit} variant="contained" sx={{ mt: 1 }}>
+                                댓글 작성
+                            </Button>
+                        </Box>
+                    </Box>
+                )}
             </CardContent>
         </Card>
     );
