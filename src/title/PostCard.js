@@ -9,13 +9,13 @@ import {
     IconButton,
     Typography
 } from '@mui/material';
-import {Favorite, ChatBubble, Send, Bookmark} from '@mui/icons-material';
+import {Favorite, ChatBubble, Send, Bookmark, Delete} from '@mui/icons-material';
 
-export default function PostCard({id, feedid, userName, fileBlob, likesCount, feedword}) {
+export default function PostCard({id, feedid, userName, fileBlob, likesCount, feedword, onDelete}) {
     const [profileImageSrc, setProfileImageSrc] = useState(null); // 각 포스트 작성자의 프로필 이미지
     const [currentLikes, setCurrentLikes] = useState(likesCount); // 좋아요 수 상태 관리
     const [liked, setLiked] = useState(false); // 좋아요 상태 관리
-    const userId = Number(localStorage.getItem('userId'));
+    const loggedInUserId = Number(localStorage.getItem('userId')); // 로그인한 사용자 ID
 
     // 각 사용자의 프로필 이미지를 가져오는 함수 (feedid를 사용)
     const fetchProfileImage = () => {
@@ -40,7 +40,7 @@ export default function PostCard({id, feedid, userName, fileBlob, likesCount, fe
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({feedId: id, userId: userId}),
+            body: JSON.stringify({feedId: id, userId: loggedInUserId}),
         })
             .then((response) => response.json())
             .then((data) => {
@@ -51,12 +51,11 @@ export default function PostCard({id, feedid, userName, fileBlob, likesCount, fe
             });
     };
 
-
     // 컴포넌트가 마운트될 때 해당 작성자의 프로필 이미지 불러오기
     useEffect(() => {
         fetchProfileImage();
         checkIfLiked();
-    }, [userName, userId]);
+    }, [userName, loggedInUserId]);
 
     const [imageSrc, setImageSrc] = useState(''); // 파일 이미지를 상태로 저장
 
@@ -83,7 +82,7 @@ export default function PostCard({id, feedid, userName, fileBlob, likesCount, fe
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({feedId: id, userId: userId, liked: newLikedState}), // userId 추가
+            body: JSON.stringify({feedId: id, userId: loggedInUserId, liked: newLikedState}), // userId 추가
         })
             .then((response) => response.json())
             .then((data) => {
@@ -92,6 +91,23 @@ export default function PostCard({id, feedid, userName, fileBlob, likesCount, fe
             })
             .catch((error) => {
                 console.error('좋아요 업데이트 중 오류 발생:', error);
+            });
+    };
+
+    const handleDeleteClick = () => {
+        // 서버에 피드 삭제 요청
+        fetch(`http://10.0.1.38:3001/deletefeed/${id}`, {
+            method: 'DELETE',
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    console.log('피드 삭제 성공');
+                    if (onDelete) onDelete(id); // 삭제 후 부모 컴포넌트에게 알림
+                }
+            })
+            .catch((error) => {
+                console.error('피드 삭제 중 오류 발생:', error);
             });
     };
 
@@ -116,6 +132,13 @@ export default function PostCard({id, feedid, userName, fileBlob, likesCount, fe
                     </Avatar>
                 }
                 title={userName}
+                action={
+                    loggedInUserId === feedid && (
+                        <IconButton aria-label="delete" onClick={handleDeleteClick}>
+                            <Delete/>
+                        </IconButton>
+                    )
+                } // 작성자와 현재 사용자가 같을 때만 삭제 버튼 표시
             />
             {/* 변환된 이미지 데이터를 렌더링 */}
             {imageSrc && (

@@ -17,7 +17,10 @@ const likeFeedRouter = require('./routes/likefeed'); // 경로에서 라우트 �
 const checklikeRouter = require('./routes/checklike');
 const initializeSocket = require('./routes/socket'); // 소켓 초기화 함수
 const usersRoute = require('./routes/users');
-const messagesRoute = require('./routes/messages');
+const messagesRouter = require('./routes/messages');
+const deleteFeedRouter = require('./routes/deletefeed'); // 추가한 피드 삭제 라우트
+const markMessagesReadRouter = require('./routes/markmessagesread');
+const messageusersRouter = require('./routes/messageusers');
 
 const app = express();
 const server = http.createServer(app); // http.Server 객체로 app을 감쌉니다.
@@ -44,8 +47,10 @@ app.use('/getusers', getUsersRouter);
 app.use('/likefeed', likeFeedRouter); // '/likefeed' 경로에 라우트 추가
 app.use('/checklike', checklikeRouter);
 app.use('/users', usersRoute); // 사용자 목록 라우트
-app.use('/messages', messagesRoute); // 메시지 라우트
-
+app.use('/messages', messagesRouter); // 메시지 라우트
+app.use('/deletefeed', deleteFeedRouter); // 피드 삭제 라우트 추가
+app.use('/markmessagesread', markMessagesReadRouter); // 미들웨어로 라우트 연결
+app.use('/messageusers',messageusersRouter);
 // 소켓 초기화
 const io = initializeSocket(server);
 

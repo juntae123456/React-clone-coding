@@ -48,6 +48,11 @@ export default function Contents({refresh}) {
             });
     };
 
+    // 피드 삭제 후 상태에서 해당 피드를 제거하는 함수
+  const handleDeleteFeed = (feedId) => {
+    setFeeds((prevFeeds) => prevFeeds.filter((feed) => feed.id !== feedId));
+  };
+
     // 로그인한 사용자의 프로필 이미지를 가져오는 함수
     const fetchProfileImage = () => {
         fetch(`http://10.0.1.38:3001/getprofile?propilid=${userId}`)
@@ -102,6 +107,7 @@ export default function Contents({refresh}) {
                                 fileBlob={feed.fileBlob} // Blob으로 변환된 이미지 파일
                                 likesCount={feed.feedgood} // 좋아요 수
                                 feedword={feed.feedword} // 피드 내용
+                                onDelete={handleDeleteFeed} // 삭제 시 호출되는 콜백 함수
                             />
                         ))}
                     </Box>
