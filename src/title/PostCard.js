@@ -59,7 +59,7 @@ export default function PostCard({ id, feedid, userName, fileBlob, likesCount, f
 
     // 댓글 가져오기 함수
     const fetchComments = () => {
-        fetch(`http://10.0.1.38:3001/getcomments/${id}`)
+        fetch(`http://127.0.0.1:3001/getcomments/${id}`)
             .then((response) => response.json())
             .then((data) => {
                 setComments(data); // 댓글 목록 업데이트
@@ -93,7 +93,7 @@ export default function PostCard({ id, feedid, userName, fileBlob, likesCount, f
         setCurrentLikes((prevLikes) => (newLikedState ? prevLikes + 1 : prevLikes - 1));
         setLiked(newLikedState);
 
-        fetch('http://10.0.1.38:3001/likefeed', {
+        fetch('http://127.0.0.1:3001/likefeed', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ feedId: id, userId: loggedInUserId, liked: newLikedState }),
@@ -101,7 +101,7 @@ export default function PostCard({ id, feedid, userName, fileBlob, likesCount, f
     };
 
     const handleDeleteClick = () => {
-        fetch(`http://10.0.1.38:3001/deletefeed/${id}`, { method: 'DELETE' })
+        fetch(`http://127.0.0.1:3001/deletefeed/${id}`, { method: 'DELETE' })
             .then((response) => response.json())
             .then((data) => {
                 if (data.success && onDelete) onDelete(id);
@@ -118,7 +118,7 @@ export default function PostCard({ id, feedid, userName, fileBlob, likesCount, f
             udcont: newComment,
         };
 
-        fetch('http://10.0.1.38:3001/addcomment', {
+        fetch('http://127.0.0.1:3001/addcomment', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

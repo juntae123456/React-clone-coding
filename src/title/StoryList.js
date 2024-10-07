@@ -1,7 +1,7 @@
-import React, {useState, useEffect} from 'react';
-import {Avatar, Box, Typography} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Avatar, Box, Typography } from '@mui/material';
 import StoryDialog from './StoryDialog'; // StoryDialog 컴포넌트 가져오기
-import {Swiper, SwiperSlide} from 'swiper/react'; // Swiper 관련 컴포넌트
+import { Swiper, SwiperSlide } from 'swiper/react'; // Swiper 관련 컴포넌트
 import 'swiper/css'; // Swiper 기본 CSS
 
 function StoryList() {
@@ -12,7 +12,7 @@ function StoryList() {
 
     // 스토리가 있는 사용자 목록을 가져오는 함수
     const fetchUsersWithStories = () => {
-        fetch('http://10.0.1.38:3001/getusers') // 스토리가 있는 사용자 목록 API 호출
+        fetch('http://127.0.0.1.38:3001/getusers') // 스토리가 있는 사용자 목록 API 호출
             .then((response) => response.json())
             .then((data) => {
                 setUsers(data); // 스토리가 있는 사용자 목록을 상태에 저장
@@ -25,7 +25,7 @@ function StoryList() {
 
     // 프로필 사진을 가져오는 함수
     const fetchProfileImage = (userId) => {
-        fetch(`http://10.0.1.38:3001/getprofile?propilid=${userId}`)
+        fetch(`http://127.0.0.1:3001/getprofile?propilid=${userId}`)
             .then((response) => response.blob())
             .then((blob) => {
                 const imageUrl = URL.createObjectURL(blob);
@@ -73,7 +73,7 @@ function StoryList() {
             {/* Swiper로 스토리 슬라이더 구현 */}
             <Swiper spaceBetween={20} slidesPerView="auto"> {/* 사용자 간 간격 설정 */}
                 {users.map((user) => (
-                    <SwiperSlide key={user.id} style={{width: 'auto'}}>
+                    <SwiperSlide key={user.id} style={{ width: 'auto' }}>
                         <Box mx={1} textAlign="center" display="flex" flexDirection="column" alignItems="center">
                             <Avatar
                                 sx={{
@@ -87,7 +87,7 @@ function StoryList() {
                             >
                                 {!profileImages[user.id] && user.name[0].toUpperCase()} {/* 프로필 이미지가 없을 경우 이름 첫 글자 표시 */}
                             </Avatar>
-                            <Typography variant="caption" sx={{textAlign: 'center', mt: 1}}>
+                            <Typography variant="caption" sx={{ textAlign: 'center', mt: 1 }}>
                                 {user.name}
                             </Typography> {/* 사용자 이름 표시 */}
                         </Box>
@@ -96,7 +96,7 @@ function StoryList() {
             </Swiper>
 
             {/* 스토리를 보여주는 다이얼로그 */}
-            <StoryDialog open={open} handleClose={handleClose} storyId={selectedStoryId}/>
+            <StoryDialog open={open} handleClose={handleClose} storyId={selectedStoryId} />
         </Box>
     );
 }
