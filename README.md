@@ -1,4 +1,4 @@
-# Getting Started with Create React App
+# 리액트 인스타 그램 클론 코딩
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
