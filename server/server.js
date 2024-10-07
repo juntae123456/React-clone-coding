@@ -23,6 +23,7 @@ const markMessagesReadRouter = require('./routes/markmessagesread');
 const messageusersRouter = require('./routes/messageusers');
 const addcommentRouter = require('./routes/addcomment'); // Corrected relative path
 const getcommentsRouter = require('./routes/getcomments'); // Corrected relative path
+const searchRouter = require('./routes/search');
 
 const app = express();
 const server = http.createServer(app); // http.Server 객체로 app을 감쌉니다.
@@ -55,6 +56,7 @@ app.use('/markmessagesread', markMessagesReadRouter); // 미들웨어로 라우�
 app.use('/messageusers',messageusersRouter);
 app.use('/addcomment',addcommentRouter);
 app.use('/getcomments',getcommentsRouter);
+app.use('/search', searchRouter); // 검색 API 등록
 // 소켓 초기화
 const io = initializeSocket(server);
 

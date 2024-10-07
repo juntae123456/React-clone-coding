@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { styled, alpha } from '@mui/material/styles';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import InputBase from '@mui/material/InputBase';
-import SearchIcon from '@mui/icons-material/Search';
-import { IconButton, Avatar, Menu, MenuItem } from '@mui/material';
+import { AppBar, Box, Toolbar, Typography, IconButton, Avatar, Menu, MenuItem, Autocomplete, TextField } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import SendIcon from '@mui/icons-material/Send';
 import ExploreIcon from '@mui/icons-material/Explore';
@@ -14,52 +7,12 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import AddIcon from '@mui/icons-material/Add';
 import AddFeed from './addfeed';
 import AddStory from './addstory';
-import Contents from './contents'; // Contents 컴포넌트 가져오기
-import Message from './Message'; // Message 컴포넌트 가져오기
+import Contents from './contents';
+import Message from './Message';
 import AddProfile from './addprofile';
 
-const Search = styled('div')(({ theme }) => ({
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: 'white',
-    border: `1px solid ${theme.palette.common.black}`,
-    '&:hover': {
-        backgroundColor: alpha(theme.palette.common.white, 0.9),
-    },
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-        marginLeft: theme.spacing(3),
-        width: 'auto',
-    },
-}));
-
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: 'inherit',
-    '& .MuiInputBase-input': {
-        padding: theme.spacing(1, 1, 1, 0),
-        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-        transition: theme.transitions.create('width'),
-        width: '100%',
-        [theme.breakpoints.up('md')]: {
-            width: '20ch',
-        },
-    },
-}));
-
 export default function ButtonAppBar() {
-    const [selectedIcon, setSelectedIcon] = useState('home'); // home, send 등을 저장할 상태
+    const [selectedIcon, setSelectedIcon] = useState('home');
     const [openAddFeed, setOpenAddFeed] = useState(false);
     const [openAddStory, setOpenAddStory] = useState(false);
     const [openProfileDialog, setOpenProfileDialog] = useState(false);
@@ -67,9 +20,11 @@ export default function ButtonAppBar() {
     const [refresh, setRefresh] = useState(false);
     const userId = Number(localStorage.getItem('userId'));
     const [anchorEl, setAnchorEl] = useState(null);
+    const [searchResults, setSearchResults] = useState([]);
+    const [profileImages, setProfileImages] = useState({}); // 사용자별 프로필 이미지 상태
 
     const handleIconClick = (icon) => {
-        setSelectedIcon(icon); // 클릭한 아이콘을 상태에 저장
+        setSelectedIcon(icon);
     };
 
     const getIconStyles = (icon) => {
@@ -105,8 +60,47 @@ export default function ButtonAppBar() {
     }, []);
 
     const refreshContents = () => {
-        console.log("refresh triggered");
         setRefresh(!refresh);
+    };
+
+    // 사용자별 프로필 이미지를 가져오는 함수
+    const fetchProfileImages = (users) => {
+        const updatedProfileImages = {};
+        users.forEach((user) => {
+            fetch(`http://10.0.1.38:3001/getprofile?propilid=${user.id}`)
+                .then((response) => response.blob())
+                .then((blob) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onloadend = () => {
+                        updatedProfileImages[user.id] = reader.result;
+                        setProfileImages((prevImages) => ({
+                            ...prevImages,
+                            [user.id]: reader.result,
+                        }));
+                    };
+                })
+                .catch((error) => {
+                    console.error(`프로필 이미지를 가져오는 중 오류 발생 (${user.name}):`, error);
+                });
+        });
+    };
+
+    // 검색 API 호출
+    const handleSearchChange = (event, value) => {
+        if (value) {
+            fetch(`http://10.0.1.38:3001/search?q=${value}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    setSearchResults(data);
+                    fetchProfileImages(data); // 검색된 사용자들의 프로필 이미지를 가져옴
+                })
+                .catch((error) => {
+                    console.error('검색 중 오류 발생:', error);
+                });
+        } else {
+            setSearchResults([]);
+        }
     };
 
     const handleAddFeedOpen = () => setOpenAddFeed(true);
@@ -128,31 +122,49 @@ export default function ButtonAppBar() {
         setAnchorEl(null);
     };
 
-    // 새로 추가: Animals 클릭 시 home으로 설정하여 Contents.js 보이기
     const handleTitleClick = () => {
-        setSelectedIcon('home'); // Animals 텍스트 클릭 시 'home'을 설정
+        setSelectedIcon('home');
     };
 
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static" color="inherit" sx={{ backgroundColor: 'white', color: 'black' }}>
                 <Toolbar sx={{ justifyContent: 'space-between' }}>
-                    {/* 타이틀을 클릭하면 Contents 컴포넌트를 보여줌 */}
                     <Typography
                         variant="h4"
                         component="div"
-                        onClick={handleTitleClick} // 타이틀 클릭 핸들러 추가
-                        sx={{ cursor: 'pointer' }} // 클릭할 수 있도록 커서 스타일 추가
+                        onClick={handleTitleClick}
+                        sx={{ cursor: 'pointer' }}
                     >
                         𝓐𝓷𝓲𝓶𝓪𝓵𝓼
                     </Typography>
                     <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
-                        <Search>
-                            <SearchIconWrapper>
-                                <SearchIcon />
-                            </SearchIconWrapper>
-                            <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search' }} />
-                        </Search>
+                        <Autocomplete
+                            freeSolo
+                            options={searchResults}
+                            getOptionLabel={(option) => option.name}
+                            onInputChange={handleSearchChange}
+                            renderOption={(props, option) => (
+                                <Box component="li" {...props} display="flex" alignItems="center">
+                                    <Avatar
+                                        src={profileImages[option.id] || '/path/to/default/profile/image.png'}
+                                        sx={{ marginRight: 1, width: 40, height: 40 }}
+                                    />
+                                    {option.name}
+                                </Box>
+                            )}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    placeholder="Search…"
+                                    variant="outlined"
+                                    sx={{
+                                        width: '300px',
+                                        backgroundColor: 'white',
+                                    }}
+                                />
+                            )}
+                        />
                     </Box>
                     <IconButton size="large" aria-label="home" onClick={() => handleIconClick('home')}>
                         <HomeIcon sx={getIconStyles('home')} />
@@ -193,10 +205,8 @@ export default function ButtonAppBar() {
                     스토리 추가
                 </MenuItem>
             </Menu>
-
-            {/* 여기가 핵심 부분: selectedIcon에 따라 다른 컴포넌트를 렌더링 */}
             {selectedIcon === 'home' && <Contents refresh={refresh} />}
-            {selectedIcon === 'send' && <Message />} {/* Message 컴포넌트가 send 클릭 시 보임 */}
+            {selectedIcon === 'send' && <Message />}
 
             <AddFeed open={openAddFeed} handleClose={handleAddFeedClose} fetchFeeds={refreshContents} />
 
