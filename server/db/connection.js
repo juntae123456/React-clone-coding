@@ -1,7 +1,7 @@
 const mysql = require('mysql');
 
 const pool = mysql.createPool({
-  host: '0.0.0.0',   // MySQL 서버 IP 주소
+  host: '127.0.0.1',   // MySQL 서버 IP 주소
   user: 'root',        // MySQL 사용자명
   password: '',        // MySQL 비밀번호
   database: 'animals', // 사용할 데이터베이스 이름

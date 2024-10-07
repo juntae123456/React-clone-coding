@@ -29,7 +29,7 @@ export default function AddProfile({ open, handleClose }) {
     formData.append('file', selectedFile);
     formData.append('propilid', userId); // 프로필 ID로 사용자 ID를 보냄
 
-    fetch('http://10.0.1.38:3001/addprofile', {
+    fetch('http://127.0.0.1:3001/addprofile', {
       method: 'POST',
       body: formData,
     })

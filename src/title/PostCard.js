@@ -25,7 +25,7 @@ export default function PostCard({ id, feedid, userName, fileBlob, likesCount, f
 
     // 각 사용자의 프로필 이미지를 가져오는 함수 (feedid를 사용)
     const fetchProfileImage = () => {
-        fetch(`http://10.0.1.38:3001/getprofile?propilid=${feedid}`) // feedid로 해당 포스트 작성자의 프로필 이미지 요청
+        fetch(`http://127.0.0.1:3001/getprofile?propilid=${feedid}`) // feedid로 해당 포스트 작성자의 프로필 이미지 요청
             .then((response) => response.blob())
             .then((blob) => {
                 const reader = new FileReader();
@@ -41,7 +41,7 @@ export default function PostCard({ id, feedid, userName, fileBlob, likesCount, f
 
     // 사용자가 해당 피드에 좋아요를 눌렀는지 확인
     const checkIfLiked = () => {
-        fetch('http://10.0.1.38:3001/checklike', {
+        fetch('http://127.0.0.1:3001/checklike', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

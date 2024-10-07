@@ -24,7 +24,7 @@ const Message = () => {
 
   // 메시지 읽음 처리 함수
   const markMessagesAsRead = (messageIds, partnerId) => {
-    fetch('http://10.0.1.38:3001/markmessagesread', {
+    fetch('http://127.0.0.1:3001/markmessagesread', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ const Message = () => {
   // 사용자 선택 시 해당 사용자와의 대화 내역 가져오기 + 읽음 처리
   const handleUserSelect = (user) => {
     setSelectedUser(user);
-    fetch(`http://10.0.1.38:3001/messages/${loggedInUserId}/${user.id}`)
+    fetch(`http://127.0.0.1:3001/messages/${loggedInUserId}/${user.id}`)
       .then((response) => response.json())
       .then((data) => {
         setMessages(data); // 선택된 사용자와의 메시지 설정
@@ -75,7 +75,7 @@ const Message = () => {
       };
 
       // 메시지 저장 API 호출
-      fetch('http://10.0.1.38:3001/messages', {
+      fetch('http://127.0.0.1:3001/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ const Message = () => {
 
   // 처음에 사용자 목록 가져오기
   useEffect(() => {
-    fetch(`http://10.0.1.38:3001/messageusers?userId=${loggedInUserId}`) // 사용자 목록 가져오는 API 호출
+    fetch(`http://127.0.0.1:3001/messageusers?userId=${loggedInUserId}`) // 사용자 목록 가져오는 API 호출
       .then((response) => response.json())
       .then((data) => {
         // 로그인한 사용자 제외한 목록 필터링

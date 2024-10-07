@@ -34,7 +34,7 @@ export default function ButtonAppBar() {
     };
 
     const fetchProfileImage = () => {
-        fetch(`http://10.0.1.38:3001/getprofile?propilid=${userId}`)
+        fetch(`http://127.0.0.1:3001/getprofile?propilid=${userId}`)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error('프로필 사진을 가져오는 중 오류 발생');
@@ -67,7 +67,7 @@ export default function ButtonAppBar() {
     const fetchProfileImages = (users) => {
         const updatedProfileImages = {};
         users.forEach((user) => {
-            fetch(`http://10.0.1.38:3001/getprofile?propilid=${user.id}`)
+            fetch(`http://127.0.0.1:3001/getprofile?propilid=${user.id}`)
                 .then((response) => response.blob())
                 .then((blob) => {
                     const reader = new FileReader();
@@ -89,7 +89,7 @@ export default function ButtonAppBar() {
     // 검색 API 호출
     const handleSearchChange = (event, value) => {
         if (value) {
-            fetch(`http://10.0.1.38:3001/search?q=${value}`)
+            fetch(`http://127.0.0.1:3001/search?q=${value}`)
                 .then((response) => response.json())
                 .then((data) => {
                     setSearchResults(data);

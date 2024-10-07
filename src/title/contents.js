@@ -34,7 +34,7 @@ export default function Contents({refresh}) {
 
     // 백엔드에서 피드 데이터를 가져옴
     const fetchFeeds = () => {
-        fetch('http://10.0.1.38:3001/getfeed') // 피드 데이터를 가져오는 API 호출
+        fetch('http://127.0.0.1:3001/getfeed') // 피드 데이터를 가져오는 API 호출
             .then((response) => response.json())
             .then((data) => {
                 const convertedFeeds = data.map((feed) => ({
@@ -55,7 +55,7 @@ export default function Contents({refresh}) {
 
     // 로그인한 사용자의 프로필 이미지를 가져오는 함수
     const fetchProfileImage = () => {
-        fetch(`http://10.0.1.38:3001/getprofile?propilid=${userId}`)
+        fetch(`http://127.0.0.1:3001/getprofile?propilid=${userId}`)
             .then((response) => response.blob())
             .then((blob) => {
                 const reader = new FileReader();
