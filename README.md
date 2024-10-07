@@ -1,7 +1,7 @@
 
 # 리액트 인스타 클론 코딩 ✅
 
-<br/> [<img src="https://img.shields.io/badge/프로젝트 기간-2024.09.10~2024.10.19-green?style=flat&logo=&logoColor=white" />]()
+<br/> [<img src="https://img.shields.io/badge/프로젝트 기간-2024.09.20~2024.10.07-green?style=flat&logo=&logoColor=white" />]()
 
 </div> 
 
@@ -22,16 +22,20 @@
 
 ### 화면 구성
 
-|로그인|메시지|
+|로그인|회원가입|
 |:---:|:---:|
-|<img src="https://user-images.githubusercontent.com/80824750/208456048-acbf44a8-cd71-4132-b35a-500047adbe1c.gif" width="400"/>|<img src="https://user-images.githubusercontent.com/80824750/208456234-fb5fe434-aa65-4d7a-b955-89098d5bbe0b.gif" width="400"/>|
+|<img src="https://github.com/user-attachments/assets/25bfe028-3575-415c-97a6-8bedcaae8f49" width="400"/>|<img src="https://github.com/user-attachments/assets/32a24a37-010a-451b-a338-c172be145fa1" width="400"/>|
 
-|로그인|메시지|
+|피드|스토리|
 |:---:|:---:|
-|<img src="https://user-images.githubusercontent.com/80824750/208456048-acbf44a8-cd71-4132-b35a-500047adbe1c.gif" width="400"/>|<img src="https://user-images.githubusercontent.com/80824750/208456234-fb5fe434-aa65-4d7a-b955-89098d5bbe0b.gif" width="400"/>|
+|<img src="https://github.com/user-attachments/assets/776a07c6-3c8c-40d5-b539-0ebf1ec2d6e4" width="400"/>|<img src="https://github.com/user-attachments/assets/223327cc-4745-498e-bc90-656b8a5df309" width="400"/>|
+
+|메시지|메시지|
+|:---:|:---:|
+|<img src="https://github.com/user-attachments/assets/950d4d75-a41c-4d78-b764-b88396b6bf50" width="400"/>|<img src="https://github.com/user-attachments/assets/f7fd507d-606d-40a4-9b20-ac2809e5538b" width="400"/>|
 
 ### 홈화면
-<img src="https://user-images.githubusercontent.com/80824750/208454673-0449e49c-57c6-4a6b-86cf-66c5b1e623dc.png">
+<img src="https://github.com/user-attachments/assets/f0affbba-7e86-4438-9869-e3ca8873c7ba">
 
 <br />
 
@@ -59,8 +63,7 @@
 <br />
 
 
-### 🗂️mysql eer Diagram
-
+## 🗂️mysql eer Diagram
 ![다이어그램](https://github.com/user-attachments/assets/367e021c-49b6-4050-9d96-ec4b9f66a2af)
 
 
