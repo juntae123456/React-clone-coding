@@ -1,7 +1,7 @@
 
 # 리액트 인스타 클론 코딩 ✅
 
-<br/> [<img src="https://img.shields.io/badge/프로젝트 기간-2024.09.10~2024.10.19-green?style=flat&logo=&logoColor=white" />]()
+<br/> [<img src="https://img.shields.io/badge/프로젝트 기간-2024.09.20~2024.10.07-green?style=flat&logo=&logoColor=white" />]()
 
 </div> 
 
